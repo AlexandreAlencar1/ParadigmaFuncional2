@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro e Filtro de Alunos</title>
+</head>
+<body>
+    <h1>Cadastro e Filtro de Alunos</h1>
+
+    <label for="nomeAluno">Novo Aluno:</label>
+    <input type="text" id="nomeAluno">
+    <label for="nota1">Nota 1:</label>
+    <input type="number" id="nota1" min="0" max="10">
+    <label for="nota2">Nota 2:</label>
+    <input type="number" id="nota2" min="0" max="10">
+    <button onclick="adicionarAluno()">Adicionar Aluno</button>
+
+    <p id="erroMensagem" style="color: red; display: none;">Preencha todos os campos e insira notas válidas (de 0 a 10).</p>
+
+    <label for="filtroNome">Filtrar por Nome:</label>
+    <input type="text" id="filtroNome">
+    <button onclick="filtrarAlunos()">Filtrar</button>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Aluno</th>
+                <th>Nota 1</th>
+                <th>Nota 2</th>
+                <th>Média do Aluno</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaCorpo">
+            <!-- Os alunos adicionados serão exibidos aqui -->
+        </tbody>
+    </table>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <h1>Novo array de médias usando Map</h1>
+                <th>Aluno</th>
+                <th>Média do Aluno</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaMedias">
+            <!-- As médias dos alunos serão exibidas aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        const alunos = [];
+
+        function adicionarAluno() {
+            const nome = document.getElementById("nomeAluno").value;
+            const nota1 = parseFloat(document.getElementById("nota1").value);
+            const nota2 = parseFloat(document.getElementById("nota2").value);
+
+            if (nome === "" || isNaN(nota1) || isNaN(nota2) || nota1 < 0 || nota1 > 10 || nota2 < 0 || nota2 > 10) {
+                document.getElementById("erroMensagem").style.display = "block";
+                return;
+            }
+
+            document.getElementById("erroMensagem").style.display = "none";
+
+            alunos.push({ nome, nota1, nota2 });
+            atualizarTabela();
+
+            document.getElementById("nomeAluno").value = "";
+            document.getElementById("nota1").value = "";
+            document.getElementById("nota2").value = "";
+        }
+//USO FILTER
+        function filtrarAlunos() {
+            const filtroNome = document.getElementById("filtroNome").value.toLowerCase();
+            const alunosFiltrados = alunos.filter(aluno => aluno.nome.toLowerCase().includes(filtroNome));
+            atualizarTabela(alunosFiltrados);
+        }
+
+        function atualizarTabela(lista = alunos) {
+            const tabelaCorpo = document.getElementById("tabelaCorpo");
+            tabelaCorpo.innerHTML = "";
+//USO MAP
+            const medias = lista.map(aluno => calcularMediaAluno(aluno));
+
+            lista.forEach((aluno, index) => {
+                const newRow = tabelaCorpo.insertRow();
+                const nomeCell = newRow.insertCell(0);
+                const nota1Cell = newRow.insertCell(1);
+                const nota2Cell = newRow.insertCell(2);
+                const mediaCell = newRow.insertCell(3);
+
+                nomeCell.innerHTML = aluno.nome;
+                nota1Cell.innerHTML = aluno.nota1.toFixed(2);
+                nota2Cell.innerHTML = aluno.nota2.toFixed(2);
+                mediaCell.innerHTML = medias[index].toFixed(2);
+            });
+
+            atualizarTabelaMedias(medias);
+        }
+//USO REDUCE
+        function calcularMediaAluno(aluno) {
+            const notas = [aluno.nota1, aluno.nota2];
+            const somaNotas = notas.reduce((total, nota) => total + nota, 0);
+            return somaNotas / notas.length;
+        }
+
+        function atualizarTabelaMedias(medias) {
+            const tabelaMedias = document.getElementById("tabelaMedias");
+            tabelaMedias.innerHTML = "";
+
+            alunos.forEach((aluno, index) => {
+                const newRow = tabelaMedias.insertRow();
+                const nomeCell = newRow.insertCell(0);
+                const mediaCell = newRow.insertCell(1);
+
+                nomeCell.innerHTML = aluno.nome;
+                mediaCell.innerHTML = medias[index].toFixed(2);
+            });
+        }
+    </script>
+</body>
+</html>
